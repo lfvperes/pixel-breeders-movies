@@ -14,6 +14,9 @@ def create_app():
         from app.models import rating
         db.create_all()
 
+    from app.routes.ratings import ratings_bp
+    app.register_blueprint(ratings_bp)
+
     @app.get("/health")
     def health():
         return {"status": "ok"}
