@@ -1,5 +1,7 @@
 import { useEffect } from "react";
 import { useMovieDetail } from "../hooks/useMovieDetail";
+import { useRating } from "../hooks/useRating";
+import { RatingStars } from "./RatingStars";
 
 const POSTER_BASE = "https://image.tmdb.org/t/p/w300";
 const PROFILE_BASE = "https://image.tmdb.org/t/p/w185";
@@ -13,8 +15,9 @@ interface Props {
 
 export function MovieModal({ movieId, onClose }: Props) {
   const { movie, loading, error } = useMovieDetail(movieId);
+  const { rating, saving, error: ratingError, submitRating, removeRating } =
+    useRating(movieId, movie?.title ?? "", movie?.poster_path ?? null);
 
-  // close on Escape key
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -23,7 +26,6 @@ export function MovieModal({ movieId, onClose }: Props) {
     return () => window.removeEventListener("keydown", handler);
   }, [onClose]);
 
-  // prevent background scroll while modal is open
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = ""; };
@@ -90,11 +92,17 @@ export function MovieModal({ movieId, onClose }: Props) {
                   {movie.overview || "No synopsis available."}
                 </p>
 
-                {/* Rating section — placeholder for next commit */}
+                {/* Rating */}
                 <div className="mt-6 p-4 bg-gray-800 rounded-lg">
-                  <p className="text-gray-400 text-sm">
-                    ⭐ Rating section coming in next commit
-                  </p>
+                  <RatingStars
+                    current={rating?.rating ?? null}
+                    saving={saving}
+                    onRate={submitRating}
+                    onDelete={removeRating}
+                  />
+                  {ratingError && (
+                    <p className="text-red-400 text-xs mt-2">{ratingError}</p>
+                  )}
                 </div>
               </div>
             </div>
