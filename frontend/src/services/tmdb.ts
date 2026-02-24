@@ -1,4 +1,5 @@
 import axios from "axios";
+import type { Movie, MovieDetail } from "../types";
 
 const tmdb = axios.create({
   baseURL: "https://api.themoviedb.org/3",
@@ -17,5 +18,3 @@ export const getMovieDetail = (id: number) =>
   tmdb.get<MovieDetail>(`/movie/${id}`, {
     params: { append_to_response: "credits" },
   });
-
-import { Movie, MovieDetail } from "../types";
