@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { SearchBar } from "../components/SearchBar";
 import { MovieGrid } from "../components/MovieGrid";
+import { MovieModal } from "../components/MovieModal";
 import { useMovieSearch } from "../hooks/useMovieSearch";
 import type { Movie } from "../types";
 
 export function HomePage() {
   const { query, setQuery, movies, loading, error, loadMore, hasMore } = useMovieSearch();
-  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+  const [selectedMovieId, setSelectedMovieId] = useState<number | null>(null);
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
@@ -27,10 +28,9 @@ export function HomePage() {
           movies={movies}
           loading={loading}
           error={error}
-          onMovieClick={setSelectedMovie}
+          onMovieClick={(movie: Movie) => setSelectedMovieId(movie.id)}
         />
 
-        {/* load more button — will become infinite scroll in commit 10 */}
         {hasMore && !loading && (
           <div className="flex justify-center mt-8">
             <button
@@ -41,14 +41,14 @@ export function HomePage() {
             </button>
           </div>
         )}
-
-        {/* selected movie debug — modal comes next commit */}
-        {selectedMovie && (
-          <p className="text-center text-gray-400 mt-4 text-sm">
-            Selected: {selectedMovie.title} — modal coming in next commit
-          </p>
-        )}
       </div>
+
+      {selectedMovieId && (
+        <MovieModal
+          movieId={selectedMovieId}
+          onClose={() => setSelectedMovieId(null)}
+        />
+      )}
     </div>
   );
 }
