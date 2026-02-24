@@ -3,11 +3,14 @@ import { SearchBar } from "../components/SearchBar";
 import { MovieGrid } from "../components/MovieGrid";
 import { MovieModal } from "../components/MovieModal";
 import { useMovieSearch } from "../hooks/useMovieSearch";
+import { useInfiniteScroll } from "../hooks/useInfiniteScroll";
 import type { Movie } from "../types";
 
 export function HomePage() {
   const { query, setQuery, movies, loading, error, loadMore, hasMore } = useMovieSearch();
   const [selectedMovieId, setSelectedMovieId] = useState<number | null>(null);
+
+  const sentinelRef = useInfiniteScroll(loadMore, hasMore && !loading);
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
@@ -31,15 +34,21 @@ export function HomePage() {
           onMovieClick={(movie: Movie) => setSelectedMovieId(movie.id)}
         />
 
-        {hasMore && !loading && (
-          <div className="flex justify-center mt-8">
-            <button
-              onClick={loadMore}
-              className="px-6 py-2 bg-yellow-400 text-gray-900 font-semibold rounded-full hover:bg-yellow-300 transition-colors"
-            >
-              Load more
-            </button>
+        {/* sentinel — invisible div that triggers the next page load */}
+        <div ref={sentinelRef} className="h-1" />
+
+        {/* spinner shown while loading more pages */}
+        {loading && movies.length > 0 && (
+          <div className="flex justify-center mt-6">
+            <div className="w-8 h-8 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin" />
           </div>
+        )}
+
+        {/* end of results message */}
+        {!hasMore && movies.length > 0 && !loading && (
+          <p className="text-center text-gray-600 text-sm mt-8">
+            No more results
+          </p>
         )}
       </div>
 
